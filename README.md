@@ -31,7 +31,7 @@ Work in progress...
 We are working on having a package in PyPi available. At the moment you can do the following:
 
 ```bash
-pip install oss-ext-pasarela
+pip install oss-pasarela
 ```
 
 or
@@ -41,7 +41,7 @@ git clone https://github.com/Navteca/oss-pasarela.git
 cd oss-pasarela/
 npm install
 python -m build
-pip install oss_ext_pasarela-<version>-py3-none-any
+pip install oss_pasarela-<version>-py3-none-any
 ```
 
 <br/>
@@ -56,8 +56,8 @@ jupyter serverextension list
 If not, you might need to run:
 
 ```
-jupyter labextension enable --py oss_ext_pasarela
-jupyter serverextension enable --py oss_ext_pasarela
+jupyter labextension enable --py oss_pasarela
+jupyter serverextension enable --py oss_pasarela
 ```
 
 <br/>
@@ -106,10 +106,8 @@ The following URL will open a notebook for the user *demouser*. The notebook wil
 
 We are in a very early stage in terms of all the features we want to add to the extension to be even with other extensions. Currently you can do the following:
 
-- List private storage objects
-  - [x] TODO 1
-  - [ ] TODO 2
-  - [ ] TODO 3
+- Open a Notebook with a base64 string code
+- Open a Notebook with a URL
 
 <br/>
 
