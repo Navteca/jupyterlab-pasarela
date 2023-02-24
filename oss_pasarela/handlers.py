@@ -92,8 +92,7 @@ class RouteHandler(APIHandler):
 
         full_url = self.request.full_url()
         match = re.search("(\/user\/)(.*)(\/pasarela)", full_url)
-        # self.redirect('http://' + self.request.host + '/user/' + match.group(2) + '/lab/tree/' + NOTEBOOK_NAME)
-        self.redirect('http://' + self.request.host + '/lab/tree/' + NOTEBOOK_NAME)
+        self.redirect('http://' + self.request.host + '/user/' + match.group(2) + '/lab/tree/' + NOTEBOOK_NAME)
 class UsageHandler(APIHandler):
     @tornado.web.authenticated
     def get(self):
