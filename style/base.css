@@ -1,0 +1,6 @@
+.jp-ReactWidget {
+    color: var(--jp-ui-font-color1);
+    background: var(--jp-layout-color1);
+    display: flex;
+    overflow-y: auto;
+  }

@@ -1,0 +1,7 @@
+{
+  "ServerApp": {
+    "jpserver_extensions": {
+      "oss_pasarela": true
+    }
+  }
+}
