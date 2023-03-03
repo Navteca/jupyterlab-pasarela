@@ -3,9 +3,9 @@ Pasarela is a Jupyterlab server extension that allows a user to open a Jupyter N
 
 **Base URL**:
 
-https://daskhub.mysmce.com/user/[username]/pasarela/open
+https://[daskhub_domain]/user/[username]/pasarela/open
 
-First, replace [username] with your Daskhub username.
+First, replace [daskhub_domain] with your Daskhub domain and replace [username] with your Daskhub username.
 
 **Required Parameters (use only one):**
 
@@ -22,15 +22,15 @@ First, replace [username] with your Daskhub username.
 ### Open a Notebook with a base64 string code
 The following URL will open a notebook for the user *demouser*. The notebook will be pre-populated with the base64 decoded content provided. Jupyterlab will ask which kernel is to be used for the notebook
 
-> https://daskhub.mysmce.com/user/demouser/pasarela/open?code=cHJpbnQoIkhlbGxvIFdvcmxkIik=
+> https://[daskhub_domain]/user/demouser/pasarela/open?code=cHJpbnQoIkhlbGxvIFdvcmxkIik=
 
 
 The following URL will open a notebook for the user *demouser*. The notebook will be pre-populated with the base64 decoded content provided and will use the “python3” kernel.
 
-> https://daskhub.mysmce.com/user/demouser/pasarela/open?code=cHJpbnQoIkhlbGxvIFdvcmxkIik=&kernel_name=python3
+> https://[daskhub_domain]/user/demouser/pasarela/open?code=cHJpbnQoIkhlbGxvIFdvcmxkIik=&kernel_name=python3
 
 
 ### Open a Notebook with a URL
 The following URL will open a notebook for the user *demouser*. The notebook will be pre-populated with contents of the Jupyter notebook file at the specified URL. Jupyterlab will ask which kernel is to be used for the notebook
 
-> https://daskhub.mysmce.com/user/demouser/pasarela/open?url=https://cdaweb.gsfc.nasa.gov/WebServices/REST/jupyter/CdasWsExampleXarray.ipynb
+> https://[daskhub_domain]/user/demouser/pasarela/open?url=https://cdaweb.gsfc.nasa.gov/WebServices/REST/jupyter/CdasWsExampleXarray.ipynb
