@@ -70,7 +70,7 @@ To use the extension on this system, you open a new window with a specially craf
 
 https://[daskhub_domain]/user/[username]/pasarela/open
 
-First, replace [daskhub_domain] with your Daskhub domain and replace [username] with your Daskhub username.
+First, replace [username] with your Daskhub username.
 
 **Required Parameters (use only one):**
 
