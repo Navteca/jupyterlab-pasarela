@@ -68,9 +68,9 @@ To use the extension on this system, you open a new window with a specially craf
 
 **Base URL**:
 
-https://[daskhub_domain]/user/[username]/pasarela/open
+https://[jupyterhub_domain]/user/[username]/pasarela/open
 
-First, replace [username] with your Daskhub username.
+First, [jupyterhub_domain] with your JupyterHub domain and replace [username] with your JupyterHub username.
 
 **Required Parameters (use only one):**
 
@@ -85,20 +85,20 @@ First, replace [username] with your Daskhub username.
 **kernel_name** - the specific Notebook kernel on this system to use to open the new Notebook. If unspecified, Jupyterlab will ask you to select a kernel to use when you first open the notebook.
 
 ### Open a Notebook with a base64 string code
-The following URL will open a notebook for the user *demouser*. The notebook will be pre-populated with the base64 decoded content provided. Jupyterlab will ask which kernel is to be used for the notebook
+The following URL will open a notebook and it will be pre-populated with the base64 decoded content provided. Jupyterlab will ask which kernel is to be used for the notebook
 
-> https://[daskhub_domain]/user/demouser/pasarela/open?code=cHJpbnQoIkhlbGxvIFdvcmxkIik=
+> https://[jupyterhub_domain]/user/[username]/pasarela/open?code=cHJpbnQoIkhlbGxvIFdvcmxkIik=
 
 
-The following URL will open a notebook for the user *demouser*. The notebook will be pre-populated with the base64 decoded content provided and will use the “python3” kernel.
+The following URL will open a notebook and it will be pre-populated with the base64 decoded content provided and will use the “python3” kernel.
 
-> https://[daskhub_domain]/user/demouser/pasarela/open?code=cHJpbnQoIkhlbGxvIFdvcmxkIik=&kernel_name=python3
+> https://[jupyterhub_domain]/user/[username]/pasarela/open?code=cHJpbnQoIkhlbGxvIFdvcmxkIik=&kernel_name=python3
 
 
 ### Open a Notebook with a URL
-The following URL will open a notebook for the user *demouser*. The notebook will be pre-populated with contents of the Jupyter notebook file at the specified URL. Jupyterlab will ask which kernel is to be used for the notebook
+The following URL will open a notebook and it will be pre-populated with contents of the Jupyter notebook file at the specified URL. Jupyterlab will ask which kernel is to be used for the notebook
 
-> https://[daskhub_domain]/user/demouser/pasarela/open?url=https://cdaweb.gsfc.nasa.gov/WebServices/REST/jupyter/CdasWsExampleXarray.ipynb
+> https://[jupyterhub_domain]/user/[username]/pasarela/open?url=https://cdaweb.gsfc.nasa.gov/WebServices/REST/jupyter/CdasWsExampleXarray.ipynb
 
 <br/>
 
