@@ -1,6 +1,7 @@
 import base64
 import binascii
 import json
+import logging
 import nbformat as nbf
 import re
 import requests
@@ -10,28 +11,42 @@ from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 from subprocess import check_output
 
+NOTEBOOK_NAME = 'Untitled.ipynb'
+
 class CustomError(Exception):
     pass
 
 
-def _get_pasarela_usage():
-    response = requests.get('https://api.github.com/repos/navteca/oss-pasarela/contents/USAGE.md')
-    data = response.json()
-    base64_content = data['content']
-    bytes_content = base64.b64decode(base64_content)
-    help_content = bytes_content.decode()
-
-    return help_content
+def _get_pasarela_usage() -> str:
+    help_content = ""
+    try:
+        response = requests.get('https://api.github.com/repos/navteca/oss-pasarela/contents/USAGE.md')
+        response.raise_for_status()
+        data = response.json()
+        base64_content = data['content']
+        bytes_content = base64.b64decode(base64_content)
+        help_content = bytes_content.decode()
+    except requests.exceptions.HTTPError as e:
+        raise CustomError(e.response.reason)
+    except requests.exceptions.RequestException as e:
+        raise CustomError(e.response.reason)
+    except binascii.Error:
+        raise CustomError('Invalid base64 string.')
+    else:
+        return help_content
 
 
 def _decode_base64_string(code: str) -> str:
+    content = None
     try:
-        base64_bytes = code.encode('ascii')
-        message_bytes = base64.b64decode(base64_bytes)
-        content = message_bytes.decode('ascii')
-        return content
+        message_bytes = base64.b64decode(code)
+        content = message_bytes.decode()
     except binascii.Error:
         raise CustomError('Invalid base64 string.')
+    except Exception as e:
+        raise CustomError(e)
+    else:
+        return content
 
 
 def _get_notebook_from_url(url: str) -> str:
@@ -41,66 +56,64 @@ def _get_notebook_from_url(url: str) -> str:
             response.raise_for_status()
         else:
             raise CustomError(f'{url} is not a valid url.')
+        notebook_content = json.loads(response.text)
+        if type(notebook_content) is not dict:
+            raise nbf.ValidationError('')
+        nbf.validate(notebook_content)
     except requests.exceptions.HTTPError as e:
         raise CustomError(e.response.reason)
     except requests.exceptions.RequestException as e:
         raise CustomError(e.response.reason)
+    except json.JSONDecodeError as e:
+        raise CustomError("Invalid JSON format.")
+    except nbf.ValidationError:
+        raise CustomError(f'The Url {url} does not contains a valid Notebook format')
     else:
-        try:
-            notebook_content = json.loads(response.text)
-        except json.JSONDecodeError as e:
-            raise CustomError("Invalid JSON format.")
-        else:
-            try:
-                if type(notebook_content) is not dict:
-                    raise nbf.ValidationError('')
-                nbf.validate(notebook_content)
-            except nbf.ValidationError:
-                raise CustomError(f'The Url {url} does not contains a valid Notebook format')
-            else:
-                return notebook_content
-    
+        return notebook_content
+
 
 def _create_notebook(self, code: str, url: str, notebook_content: dict, kernel_name: str, note_book_name: str, err: str):
     header = None
     kernelspec = check_output('jupyter kernelspec list --json', shell=True).decode("utf-8")
     nb = nbf.v4.new_notebook()
 
-    if err:
-        header = f"""# <span style="color:red">Oops, something went wrong.</span>\n````Reason: {err}````"""
-        help_content = _get_pasarela_usage().replace("[jupyterhub_domain]", self.request.host)
-        nb['cells'] = [nbf.v4.new_markdown_cell(help_content)]
-    elif code:
-        nb['cells'] = [nbf.v4.new_code_cell(notebook_content)]
-    else:
-        nb = nbf.from_dict(notebook_content)
-        
-    if url and 'kernelspec' in nb.metadata and 'name' in nb.metadata.kernelspec and nb.metadata.kernelspec.name not in kernelspec:
-        header = f"""# <span style="orange:red">Warning.</span>\n````Reason: Kernel {nb.metadata['kernelspec']['name']} is not installed````"""
-
-    if kernel_name:
-        if kernel_name not in kernelspec:
-            header = f"""# <span style="orange:red">Warning.</span>\n````Reason: Kernel {kernel_name} is not installed````"""
+    try:
+        if err:
+            header = f"""# <span style="color:red">Oops, something went wrong.</span>\n````Reason: {err}````"""
+            help_content = _get_pasarela_usage().replace("[jupyterhub_domain]", self.request.host)
+            nb['cells'] = [nbf.v4.new_markdown_cell(help_content)]
+        elif code:
+            nb['cells'] = [nbf.v4.new_code_cell(notebook_content)]
         else:
-            nb.metadata['kernelspec'] = {'name' : kernel_name, 'display_name': kernel_name}
+            nb = nbf.from_dict(notebook_content)
+            
+        if url and 'kernelspec' in nb.metadata and 'name' in nb.metadata.kernelspec and nb.metadata.kernelspec.name not in kernelspec:
+            header = f"""# <span style="orange:red">Warning.</span>\n````Reason: Kernel {nb.metadata['kernelspec']['name']} is not installed````"""
 
-    if not header:
-        header = '''# This notebook has been generated by OSS Pasarela extension.'''
+        if kernel_name:
+            if kernel_name not in kernelspec:
+                header = f"""# <span style="orange:red">Warning.</span>\n````Reason: Kernel {kernel_name} is not installed````"""
+            else:
+                nb.metadata['kernelspec'] = {'name' : kernel_name, 'display_name': kernel_name}
 
-    nb['cells'].insert(0, nbf.v4.new_markdown_cell(header))
-    nbf.write(nb, note_book_name)
+        if not header:
+            header = '''# This notebook has been generated by OSS Pasarela extension.'''
+
+        nb['cells'].insert(0, nbf.v4.new_markdown_cell(header))
+        nbf.write(nb, note_book_name)
+    except Exception as e:
+        raise CustomError(e)    
 
 
 class RouteHandler(APIHandler):
     @tornado.web.authenticated
     def get(self):
-        NOTEBOOK_NAME = 'Untitled.ipynb'
         code = self.get_argument("code", None)
         err = None
         kernel_name = self.get_argument("kernel_name", None)   
-        url = self.get_argument("url", None)           
-        
+        url = self.get_argument("url", None)                   
         notebook_content = {}
+
         try:
             if not (code or url):
                 raise CustomError('Missing code or url argument.')
@@ -110,12 +123,12 @@ class RouteHandler(APIHandler):
                 notebook_content = _get_notebook_from_url(url)
         except CustomError as e:
             err = e
-
-        _create_notebook(self, code, url, notebook_content, kernel_name, NOTEBOOK_NAME, err)
-        # self.redirect('http://' + self.request.host + '/lab/tree/' + NOTEBOOK_NAME)
-        full_url = self.request.full_url()
-        match = re.search("(\/user\/)(.*)(\/pasarela)", full_url)
-        self.redirect('http://' + self.request.host + '/user/' + match.group(2) + '/lab/tree/' + NOTEBOOK_NAME)
+        finally:
+            _create_notebook(self, code, url, notebook_content, kernel_name, NOTEBOOK_NAME, err)
+        # full_url = self.request.full_url()
+        # match = re.search("(\/user\/)(.*)(\/pasarela)", full_url)
+        # self.redirect('http://' + self.request.host + '/user/' + match.group(2) + '/lab/tree/' + NOTEBOOK_NAME)
+        self.redirect('http://' + self.request.host + '/lab/tree/' + NOTEBOOK_NAME)
 
 
 class UsageHandler(APIHandler):
