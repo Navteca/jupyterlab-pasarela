@@ -125,10 +125,10 @@ class RouteHandler(APIHandler):
             err = e
         finally:
             _create_notebook(host, code, url, notebook_content, kernel_name, NOTEBOOK_NAME, err)
-        # full_url = self.request.full_url()
-        # match = re.search("(\/user\/)(.*)(\/pasarela)", full_url)
-        # self.redirect('http://' + self.request.host + '/user/' + match.group(2) + '/lab/tree/' + NOTEBOOK_NAME)
-        self.redirect('http://' + self.request.host + '/lab/tree/' + NOTEBOOK_NAME)
+        # self.redirect('http://' + self.request.host + '/lab/tree/' + NOTEBOOK_NAME)
+        full_url = self.request.full_url()
+        match = re.search("(\/user\/)(.*)(\/pasarela)", full_url)
+        self.redirect('http://' + self.request.host + '/user/' + match.group(2) + '/lab/tree/' + NOTEBOOK_NAME)
 
 
 class UsageHandler(APIHandler):
