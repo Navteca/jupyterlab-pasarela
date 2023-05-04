@@ -57,7 +57,7 @@ def _get_notebook_from_url(url: str) -> str:
         else:
             raise CustomError(f'{url} is not a valid url.')
         notebook_content = json.loads(response.text)
-        if type(notebook_content) is not dict:
+        if not isinstance(notebook_content, dict):
             raise nbf.ValidationError('')
         nbf.validate(notebook_content)
     except requests.exceptions.HTTPError as e:
@@ -72,7 +72,7 @@ def _get_notebook_from_url(url: str) -> str:
         return notebook_content
 
 
-def _create_notebook(self, code: str, url: str, notebook_content: dict, kernel_name: str, note_book_name: str, err: str):
+def _create_notebook(host: str, code: str, url: str, notebook_content: dict, kernel_name: str, note_book_name: str, err: str) -> None:
     header = None
     kernelspec = check_output('jupyter kernelspec list --json', shell=True).decode("utf-8")
     nb = nbf.v4.new_notebook()
@@ -80,7 +80,7 @@ def _create_notebook(self, code: str, url: str, notebook_content: dict, kernel_n
     try:
         if err:
             header = f"""# <span style="color:red">Oops, something went wrong.</span>\n````Reason: {err}````"""
-            help_content = _get_pasarela_usage().replace("[jupyterhub_domain]", self.request.host)
+            help_content = _get_pasarela_usage().replace("[jupyterhub_domain]", host)
             nb['cells'] = [nbf.v4.new_markdown_cell(help_content)]
         elif code:
             nb['cells'] = [nbf.v4.new_code_cell(notebook_content)]
@@ -102,7 +102,9 @@ def _create_notebook(self, code: str, url: str, notebook_content: dict, kernel_n
         nb['cells'].insert(0, nbf.v4.new_markdown_cell(header))
         nbf.write(nb, note_book_name)
     except Exception as e:
-        raise CustomError(e)    
+        raise CustomError(e)
+    else:
+        return None
 
 
 class RouteHandler(APIHandler):
@@ -110,6 +112,7 @@ class RouteHandler(APIHandler):
     def get(self):
         code = self.get_argument("code", None)
         err = None
+        host = self.request.host
         kernel_name = self.get_argument("kernel_name", None)   
         url = self.get_argument("url", None)                   
         notebook_content = {}
@@ -117,14 +120,11 @@ class RouteHandler(APIHandler):
         try:
             if not (code or url):
                 raise CustomError('Missing code or url argument.')
-            if code:
-                notebook_content = _decode_base64_string(code)
-            else:
-                notebook_content = _get_notebook_from_url(url)
+            notebook_content = _decode_base64_string(code) if code else _get_notebook_from_url(url)
         except CustomError as e:
             err = e
         finally:
-            _create_notebook(self, code, url, notebook_content, kernel_name, NOTEBOOK_NAME, err)
+            _create_notebook(host, code, url, notebook_content, kernel_name, NOTEBOOK_NAME, err)
         # full_url = self.request.full_url()
         # match = re.search("(\/user\/)(.*)(\/pasarela)", full_url)
         # self.redirect('http://' + self.request.host + '/user/' + match.group(2) + '/lab/tree/' + NOTEBOOK_NAME)
@@ -134,7 +134,6 @@ class RouteHandler(APIHandler):
 class UsageHandler(APIHandler):
     @tornado.web.authenticated
     def get(self):
-        # self.finish('This is a test')
         self.finish(_get_pasarela_usage().replace("[jupyterhub_domain]", self.request.host))
 
 
