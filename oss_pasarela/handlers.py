@@ -1,7 +1,6 @@
 import base64
 import binascii
 import json
-import logging
 import nbformat as nbf
 import re
 import requests
@@ -12,6 +11,7 @@ from jupyter_server.utils import url_path_join
 from subprocess import check_output
 
 NOTEBOOK_NAME = 'Untitled.ipynb'
+
 
 class CustomError(Exception):
     pass
@@ -125,9 +125,10 @@ class RouteHandler(APIHandler):
             err = e
         finally:
             _create_notebook(host, code, url, notebook_content, kernel_name, NOTEBOOK_NAME, err)
+            full_url = self.request.full_url()
+            match = re.search("(\/user\/)(.*)(\/pasarela)", full_url)
+
         # self.redirect('http://' + self.request.host + '/lab/tree/' + NOTEBOOK_NAME)
-        full_url = self.request.full_url()
-        match = re.search("(\/user\/)(.*)(\/pasarela)", full_url)
         self.redirect('http://' + self.request.host + '/user/' + match.group(2) + '/lab/tree/' + NOTEBOOK_NAME)
 
 
