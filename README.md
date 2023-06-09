@@ -68,9 +68,9 @@ To use the extension on this system, you open a new window with a specially craf
 
 **Base URL**:
 
-https://[jupyterhub_domain]/user/[username]/pasarela/open
+https://[jupyterhub_domain]/hub/user-redirect/pasarela/open
 
-First, [jupyterhub_domain] with your JupyterHub domain and replace [username] with your JupyterHub username.
+First, replace [jupyterhub_domain] with your JupyterHub domain.
 
 **Required Parameters (use only one):**
 
@@ -87,18 +87,18 @@ First, [jupyterhub_domain] with your JupyterHub domain and replace [username] wi
 ### Open a Notebook with a base64 string code
 The following URL will open a notebook and it will be pre-populated with the base64 decoded content provided. Jupyterlab will ask which kernel is to be used for the notebook
 
-> https://[jupyterhub_domain]/user/[username]/pasarela/open?code=cHJpbnQoIkhlbGxvIFdvcmxkIik=
+> https://[jupyterhub_domain]/hub/user-redirect/pasarela/open?code=cHJpbnQoIkhlbGxvIFdvcmxkIik=
 
 
 The following URL will open a notebook and it will be pre-populated with the base64 decoded content provided and will use the “python3” kernel.
 
-> https://[jupyterhub_domain]/user/[username]/pasarela/open?code=cHJpbnQoIkhlbGxvIFdvcmxkIik=&kernel_name=python3
+> https://[jupyterhub_domain]/hub/user-redirect/pasarela/open?code=cHJpbnQoIkhlbGxvIFdvcmxkIik=&kernel_name=python3
 
 
 ### Open a Notebook with a URL
 The following URL will open a notebook and it will be pre-populated with contents of the Jupyter notebook file at the specified URL. Jupyterlab will ask which kernel is to be used for the notebook
 
-> https://[jupyterhub_domain]/user/[username]/pasarela/open?url=https://cdaweb.gsfc.nasa.gov/WebServices/REST/jupyter/CdasWsExampleXarray.ipynb
+> https://[jupyterhub_domain]/hub/user-redirect/pasarela/open?url=https://cdaweb.gsfc.nasa.gov/WebServices/REST/jupyter/CdasWsExampleXarray.ipynb
 
 <br/>
 
