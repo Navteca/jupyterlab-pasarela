@@ -103,8 +103,8 @@ def _create_notebook(host: str, code: str, url: str, notebook_content: dict, ker
 
 
 class RouteHandler(APIHandler):
-    @tornado.web.authenticated
     def get(self):
+        self.log.info('PASARELA EXTENSION')
         code = self.get_argument("code", None)
         kernel_name = self.get_argument("kernel_name", None)   
         url = self.get_argument("url", None)                   
