@@ -9,7 +9,7 @@ import nbformat as nbf
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors import CellExecutionError
 
-from jupyter_server.base.handlers import APIHandler
+from jupyter_server.base.handlers import JupyterHandler
 from jupyter_server.utils import url_path_join
 import tornado
 
@@ -21,7 +21,9 @@ def _get_pasarela_usage():
     help_content = bytes_content.decode()
 
     return help_content
-class RouteHandler(APIHandler):
+
+
+class RouteHandler(JupyterHandler):
     @tornado.web.authenticated
     def get(self):
         code = self.get_argument("code", None)
@@ -93,7 +95,9 @@ class RouteHandler(APIHandler):
         full_url = self.request.full_url()
         match = re.search("(\/user\/)(.*)(\/pasarela)", full_url)
         self.redirect('http://' + self.request.host + '/user/' + match.group(2) + '/lab/tree/' + NOTEBOOK_NAME)
-class UsageHandler(APIHandler):
+
+
+class UsageHandler(JupyterHandler):
     @tornado.web.authenticated
     def get(self):
         # self.finish('This is a test')
